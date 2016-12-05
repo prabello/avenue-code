@@ -1,6 +1,7 @@
 package com.avenuecode.dao;
 
 
+import com.avenuecode.model.Image;
 import com.avenuecode.model.Product;
 import org.springframework.stereotype.Repository;
 
@@ -8,8 +9,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
+@SuppressWarnings("JpaQlInspection")
 @Repository
 public class ProductDao {
 
@@ -32,31 +35,46 @@ public class ProductDao {
         return new HashSet<>(manager.createQuery("select p from Product p", Product.class).getResultList());
     }
 
-    public Set<Product> getAllProductsAnd(boolean images, boolean parentProduct) {
+    public Product findByIdWithFilters(Integer id, boolean images, boolean parentProduct) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         CriteriaQuery<Product> criteria = builder.createQuery(Product.class);
         Root<Product> root = criteria.from(Product.class);
 
-
         if (images) {
-            root.fetch("images",JoinType.LEFT);
+            root.fetch("images", JoinType.LEFT);
         }
         if (parentProduct) {
-            root.fetch("parentProduct",JoinType.LEFT);
+            Fetch<Object, Object> joinParent = root.fetch("parentProduct", JoinType.LEFT);
+            joinParent.fetch("images",JoinType.LEFT);
+        }
+
+        criteria.where(builder.equal(root.get("id"),id));
+
+        return manager.createQuery(criteria).getSingleResult();
+    }
+
+    public Set<Product> findAllProductsWithFilters(boolean images, boolean parentProduct) {
+        CriteriaBuilder builder = manager.getCriteriaBuilder();
+        CriteriaQuery<Product> criteria = builder.createQuery(Product.class);
+        Root<Product> root = criteria.from(Product.class);
+
+        if (images) {
+            root.fetch("images", JoinType.LEFT);
+        }
+        if (parentProduct) {
+            Fetch<Object, Object> joinParent = root.fetch("parentProduct", JoinType.LEFT);
+            joinParent.fetch("images",JoinType.LEFT);
         }
 
         return new HashSet<>(manager.createQuery(criteria).getResultList());
     }
 
     public Product findById(Integer id) {
-        return manager.find(Product.class,id);
+        return manager.find(Product.class, id);
     }
 
-    public Product getChildProductsForProductWithId(Integer id) {
-        return null;
-    }
-
-    public Product getImagesForProductId(Integer id) {
-        return null;
+    public Set<Product> findChildProductsForProductWithId(Integer id) {
+        return new HashSet<>(manager.createQuery("select p from Product p where p.parentProduct.id = :id",
+                Product.class).setParameter("id", id).getResultList());
     }
 }
