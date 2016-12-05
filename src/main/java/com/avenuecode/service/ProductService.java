@@ -31,7 +31,7 @@ public class ProductService {
     @Transactional
     public Response updateProduct(Product product){
         Product updatedProduct = productDao.update(product);
-        return Response.noContent().build();
+        return Response.ok(updatedProduct).build();
     }
 
     @DELETE
