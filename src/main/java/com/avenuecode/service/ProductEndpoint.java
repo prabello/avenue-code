@@ -47,7 +47,6 @@ public class ProductEndpoint {
 
     @GET
     public Response getAllProducts(@HeaderParam("images") boolean images, @HeaderParam("parent") boolean parentProduct) throws JsonProcessingException {
-
         if (images || parentProduct) {
             Set<Product> allProducts = productDao.getAllProductsAnd(images, parentProduct);
             String json = new ObjectMapper().writerWithView(ProductView.RelationList.class).writeValueAsString(allProducts);
@@ -59,24 +58,29 @@ public class ProductEndpoint {
         }
     }
 
-//    @GET
-//    public Product getProduct(){
-//        return  null;
-//    }
-//
-//    @GET
-//    public Product getProductAndRelations(){
-//        return  null;
-//    }
-//
-//    @GET
-//    public Set<Product> getChildProductsFor(Product product){
-//        return null;
-//    }
-//
-//    @GET
-//    public Set<Image> getChildImagesFor(Product product){
-//        return null;
-//    }
+    @GET
+    @Path("/{id}")
+    public Response getProduct(@PathParam("id") Integer id, @HeaderParam("images") boolean images, @HeaderParam("parent") boolean parentProduct) throws JsonProcessingException {
+        Product product = productDao.findById(id);
+        String json = new ObjectMapper().writerWithView(ProductView.MainList.class).writeValueAsString(product);
+        return Response.ok(json).build();
+    }
+
+    @GET
+    @Path("/{id}/child")
+    public Response getChildProducts(@PathParam("id") Integer id) throws JsonProcessingException {
+        Product product = productDao.getChildProductsForProductWithId(id);
+        String json = new ObjectMapper().writerWithView(ProductView.MainList.class).writeValueAsString(product);
+        return Response.ok(json).build();
+    }
+
+    @GET
+    @Path("/{id}/images")
+    public Response getImagesFromProduct(@PathParam("id") Integer id) throws JsonProcessingException {
+        Product product = productDao.getImagesForProductId(id);
+        String json = new ObjectMapper().writerWithView(ProductView.MainList.class).writeValueAsString(product);
+        return Response.ok(json).build();
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.avenuecode.model;
 
 import com.avenuecode.ProductView;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Product {
 
     @Id
@@ -21,6 +23,7 @@ public class Product {
 
     @OneToMany
     @JsonView(ProductView.RelationList.class)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Set<Image> images;
 
     @ManyToOne(fetch = FetchType.LAZY)

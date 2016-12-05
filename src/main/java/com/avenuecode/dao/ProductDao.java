@@ -47,4 +47,16 @@ public class ProductDao {
 
         return new HashSet<>(manager.createQuery(criteria).getResultList());
     }
+
+    public Product findById(Integer id) {
+        return manager.find(Product.class,id);
+    }
+
+    public Product getChildProductsForProductWithId(Integer id) {
+        return null;
+    }
+
+    public Product getImagesForProductId(Integer id) {
+        return null;
+    }
 }
